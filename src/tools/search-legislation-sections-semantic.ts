@@ -23,7 +23,7 @@ research or to ensure you have the latest amendments, verify results against sea
 live website.
 
 Returned fields:
-- provisionId: Section identifier
+- provisionId: Section fragment path (e.g., "section/1", "regulation/5"). May fall back to document ID if fragment is unavailable.
 - provisionType: Section type (e.g., "section", "regulation")
 - number: Section number
 - legislation: Parent legislation object with id (e.g., "ukpga/2018/12"), type, year, number

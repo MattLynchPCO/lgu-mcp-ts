@@ -16,14 +16,31 @@ import type {
   LexLegislationSearchResponse,
   LexLegislationSection,
 } from "./lex-client.js";
+import { parseLegislationUri } from "../utils/legislation-uri.js";
 
 /**
- * Normalize legislation.gov.uk URLs to just the ID portion.
- * Example: "https://www.legislation.gov.uk/id/ukpga/2020/2" -> "ukpga/2020/2"
+ * Normalize a legislation.gov.uk URI to a document ID (type/year/number).
+ * Strips base URL prefix and any fragment, version, or language suffixes.
+ * Example: "https://www.legislation.gov.uk/id/ukpga/2020/2/enacted" -> "ukpga/2020/2"
  */
 function normalizeId(value?: string): string | undefined {
   if (!value) return undefined;
-  return value.replace(/^https?:\/\/www\.legislation\.gov\.uk\/(id\/)?/, "");
+  const parsed = parseLegislationUri(value);
+  if (!parsed) {
+    // Fall back to stripping the base URL prefix
+    return value.replace(/^https?:\/\/www\.legislation\.gov\.uk\/(id\/)?/, "");
+  }
+  return `${parsed.type}/${parsed.year}/${parsed.number}`;
+}
+
+/**
+ * Extract the fragment portion from a legislation.gov.uk URI.
+ * Example: "https://www.legislation.gov.uk/id/ukpga/2020/2/section/1" -> "section/1"
+ */
+function extractFragment(value?: string): string | undefined {
+  if (!value) return undefined;
+  const parsed = parseLegislationUri(value);
+  return parsed?.fragment;
 }
 
 /**
@@ -154,7 +171,13 @@ export function mapLegislationSection(
   section: LexLegislationSection
 ): MappedLegislationSection {
   return {
-    provisionId: normalizeId(section.id ?? section.uri) || section.id || section.uri || "",
+    // extractFragment and normalizeId each call parseLegislationUri independently.
+    // This parses the same URI twice, but the function is cheap (string splitting)
+    // and keeping them as separate single-purpose functions is clearer than
+    // inlining a single parse here.
+    provisionId: extractFragment(section.id ?? section.uri)
+      || normalizeId(section.id ?? section.uri)
+      || section.id || section.uri || "",
     provisionType: section.provision_type,
     number: section.number,
     legislation: {

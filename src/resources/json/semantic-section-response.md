@@ -18,7 +18,7 @@ Returns an array of section objects, ordered by relevance.
 
 | Field | Type | Description | Example |
 |-------|------|-------------|---------|
-| `provisionId` | string | Normalized section identifier | `"ukpga/2018/12/section/1"` |
+| `provisionId` | string | Section fragment path within the parent legislation (e.g., `"section/1"`). Falls back to document ID or raw URI if fragment cannot be extracted. | `"section/1"` |
 | `provisionType` | string (optional) | Type of provision | `"section"`, `"regulation"`, `"article"` |
 | `number` | number (optional) | Section number | `1`, `2`, `42` |
 | `title` | string (optional) | Section heading/title | `"Overview"`, `"Definitions"` |
@@ -66,7 +66,7 @@ When `includeText=false` (or omitted), the `text` field is absent, making respon
 ```json
 [
   {
-    "provisionId": "ukpga/2018/12/section/1",
+    "provisionId": "section/1",
     "provisionType": "section",
     "number": 1,
     "title": "Overview",
@@ -80,7 +80,7 @@ When `includeText=false` (or omitted), the `text` field is absent, making respon
     "text": "(1) This Act makes provision about the processing of personal data.\n\n(2) Most processing of personal data is subject to—\n\n(a) the GDPR (see section 2),\n\n(b) Parts 5 to 7 of this Act, and\n\n(c) regulations made under this Act."
   },
   {
-    "provisionId": "ukpga/2018/12/section/3",
+    "provisionId": "section/3",
     "provisionType": "section",
     "number": 3,
     "title": "Terms relating to the processing of personal data",
@@ -101,7 +101,7 @@ When `includeText=false` (or omitted), the `text` field is absent, making respon
 ```json
 [
   {
-    "provisionId": "ukpga/2018/12/section/1",
+    "provisionId": "section/1",
     "provisionType": "section",
     "number": 1,
     "title": "Overview",

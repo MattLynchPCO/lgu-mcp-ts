@@ -57,6 +57,18 @@ All date fields use **ISO 8601 date format** (YYYY-MM-DD).
   - Format: ISO 8601 date (YYYY-MM-DD)
   - Example: `"2020-12-15"`
 
+### Version and Language
+
+These fields reflect the version and language of the response, when the request URI included them.
+
+- **version** (string, optional) - Version identifier from the request
+  - Example: `"enacted"`, `"made"`, `"2024-01-01"`
+  - Present when a specific version was requested
+
+- **language** (string, optional) - Language of the response
+  - Values: `"english"`, `"welsh"`
+  - Present when a specific language was requested
+
 ### Additional Metadata
 
 - **isbn** (string, optional) - ISBN for published version

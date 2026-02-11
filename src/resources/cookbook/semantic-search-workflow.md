@@ -39,7 +39,7 @@ Start with a broad conceptual query:
 ```json
 [
   {
-    "provisionId": "ukpga/2018/12/section/45",
+    "provisionId": "section/45",
     "provisionType": "section",
     "number": 45,
     "legislation": {

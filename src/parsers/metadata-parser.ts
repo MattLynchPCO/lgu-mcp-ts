@@ -6,6 +6,7 @@
  */
 
 import { XMLParser } from 'fast-xml-parser';
+import { parseLegislationUri } from '../utils/legislation-uri.js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -43,6 +44,10 @@ export interface LegislationMetadata {
   enactmentDate?: string;   // When enacted (primary legislation)
   madeDate?: string;        // When made (secondary legislation)
 
+  // Version/language of this response (if URI included them)
+  version?: string;        // e.g., "enacted", "2024-01-01"
+  language?: string;       // "english" or "welsh"
+
   // Additional metadata
   isbn?: string;            // TODO: Extract from metadata
 }
@@ -77,8 +82,10 @@ export class MetadataParser {
     const longType = this.extractLongType(legislation);
     const shortType = longToShortTypeMap.get(longType) || '';
 
+    const parsed = this.parseDocumentUri(legislation);
+
     return {
-      id: this.extractId(legislation),
+      id: parsed.id,
       type: shortType,
       year: this.extractYear(legislation),
       number: this.extractNumber(legislation),
@@ -86,14 +93,23 @@ export class MetadataParser {
       status: this.extractStatus(legislation),
       extent: this.extractExtent(legislation),
       enactmentDate: this.extractEnactmentDate(legislation),
-      madeDate: this.extractMadeDate(legislation)
+      madeDate: this.extractMadeDate(legislation),
+      version: parsed.version,
+      language: parsed.language,
     };
   }
 
-  private extractId(legislation: any): string {
-    // Strip prefix to get just "ukpga/2020/2"
-    const fullId = legislation['@_DocumentURI'] || '';
-    return fullId.replace(/^https?:\/\/www\.legislation\.gov\.uk\/(id\/)?/, '');
+  private parseDocumentUri(legislation: any): { id: string; version?: string; language?: string } {
+    const fullUri = legislation['@_DocumentURI'] || '';
+    if (!fullUri) return { id: '' };
+
+    const parsed = parseLegislationUri(fullUri);
+    if (!parsed) {
+      // Fall back to stripping the base URL prefix
+      return { id: fullUri.replace(/^https?:\/\/www\.legislation\.gov\.uk\/(id\/)?/, '') };
+    }
+    const id = `${parsed.type}/${parsed.year}/${parsed.number}`;
+    return { id, version: parsed.version, language: parsed.language };
   }
 
   private extractLongType(legislation: any): string {

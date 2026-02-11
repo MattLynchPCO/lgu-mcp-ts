@@ -106,7 +106,7 @@ test('mapLegislationSection maps section details', () => {
 
   const result = mapLegislationSection(sample);
 
-  assert.strictEqual(result.provisionId, 'ukpga/2020/2/section/1');
+  assert.strictEqual(result.provisionId, 'section/1');
   assert.strictEqual(result.legislation.id, 'ukpga/2020/2');
   assert.strictEqual(result.legislation.type, 'ukpga');
   assert.deepStrictEqual(result.extent, ['E']);
@@ -122,6 +122,6 @@ test('mapLegislationSection falls back to uri when id is missing', () => {
 
   const result = mapLegislationSection(sample);
 
-  assert.strictEqual(result.provisionId, 'ukpga/2020/2/section/1');
+  assert.strictEqual(result.provisionId, 'section/1');
   assert.strictEqual(result.legislation.id, 'ukpga/2020/2');
 });
