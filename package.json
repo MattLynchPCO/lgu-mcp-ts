@@ -17,6 +17,7 @@
     "watch:copy": "copyfiles -u 1 'src/resources/**/*' build/ --watch",
     "start": "node build/index.js",
     "inspector": "npx @modelcontextprotocol/inspector node build/index.js",
+    "chat": "node scripts/mcp-chatbot.js",
     "test": "npm run build && node --test build/test/**/*.test.js"
   },
   "keywords": [
