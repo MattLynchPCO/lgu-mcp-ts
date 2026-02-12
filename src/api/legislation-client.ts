@@ -128,7 +128,7 @@ export class LegislationClient {
     try {
       const response = await fetch(url, {
         headers: {
-          "User-Agent": "legislation-mcp-server/0.1.0"
+          "User-Agent": "legislation-mcp-server/0.1.0 (contact: jim@jurisdatum.com)"
         }
       });
 
@@ -168,7 +168,7 @@ export class LegislationClient {
     try {
       const response = await fetch(url, {
         headers: {
-          "User-Agent": "legislation-mcp-server/0.1.0"
+          "User-Agent": "legislation-mcp-server/0.1.0 (contact: jim@jurisdatum.com)"
         }
       });
 
