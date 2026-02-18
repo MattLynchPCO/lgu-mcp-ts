@@ -123,6 +123,11 @@ Read these resources to understand UK legislation data structures:
   - Extent arrays and date fields
   - Primary vs secondary legislation examples
 
+- **`json://table-of-contents-response`** - Table of contents format
+  - Response structure for `get_legislation_table_of_contents`
+  - Hierarchical `contents` with semantic sections
+  - `fragmentId` values for use with `get_legislation_fragment`
+
 #### XML Formats
 
 - **`clml://schema-guide`** - How to parse CLML XML documents

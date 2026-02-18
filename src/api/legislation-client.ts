@@ -95,6 +95,27 @@ export class LegislationClient {
   }
 
   /**
+   * Retrieve the table of contents for a legislation document
+   * Returns the Contents element in the requested format (XML by default)
+   */
+  async getTableOfContents(
+    type: string,
+    year: string,
+    number: string,
+    options: {
+      format?: "xml" | "akn" | "html";
+      version?: string; // Point-in-time date (YYYY-MM-DD)
+    } = {}
+  ): Promise<LegislationResponse> {
+    const { format = "xml", version } = options;
+
+    const versionPath = version ? `/${version}` : "";
+    const url = `${this.baseUrl}/${type}/${year}/${number}/contents${versionPath}/data.${format}`;
+
+    return this.fetchDocument(url);
+  }
+
+  /**
    * Search for legislation by various criteria
    * Returns Atom feed (XML format)
    */

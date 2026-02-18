@@ -5,6 +5,7 @@
  */
 
 import { LegislationClient, LegislationResponse } from "../api/legislation-client.js";
+import { CLMLTextParser } from "../parsers/clml-text-parser.js";
 
 export const name = "get_legislation_fragment";
 
@@ -18,6 +19,7 @@ Returns CLML XML by default - a structured, machine-readable format that preserv
 
 Available formats:
 - xml (default): CLML format - UK-specific legislative XML schema
+- text: Plain-text rendering of CLML content, readable without XML knowledge
 - akn: Akoma Ntoso format - international LegalDocML standard
 - html: Rendered HTML for human reading
 
@@ -76,8 +78,8 @@ export const inputSchema = {
     },
     format: {
       type: "string",
-      enum: ["xml", "akn", "html"],
-      description: "Response format (default: xml for CLML, akn for Akoma Ntoso, html for rendered version)",
+      enum: ["xml", "text", "akn", "html"],
+      description: "Response format (default: xml for CLML, text for plain-text rendering, akn for Akoma Ntoso, html for rendered version)",
     },
     version: {
       type: "string",
@@ -93,7 +95,7 @@ export async function execute(
     year: string;
     number: string;
     fragmentId: string;
-    format?: "xml" | "akn" | "html";
+    format?: "xml" | "text" | "akn" | "html";
     version?: string;
   },
   client: LegislationClient
@@ -101,8 +103,9 @@ export async function execute(
   const { type, year, number, fragmentId, format = "xml", version } = args;
 
   try {
+    const apiFormat = format === "text" ? "xml" : format;
     const result = await client.getFragment(type, year, number, fragmentId, {
-      format,
+      format: apiFormat,
       version,
     });
 
@@ -110,12 +113,15 @@ export async function execute(
       return formatDisambiguation(result);
     }
 
-    // Return XML/HTML as-is (already a string from the API)
+    const content = format === "text"
+      ? new CLMLTextParser().parse(result.content)
+      : result.content;
+
     return {
       content: [
         {
           type: "text",
-          text: result.content,
+          text: content,
         },
       ],
     };

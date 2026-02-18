@@ -52,6 +52,19 @@ export interface LegislationMetadata {
   isbn?: string;            // TODO: Extract from metadata
 }
 
+/**
+ * Navigation links indicating which structural sections exist in a document.
+ * Internal use only — not part of the public response contract.
+ */
+export interface NavigationLinks {
+  hasIntroduction: boolean;
+  hasSignature: boolean;
+  hasExplanatoryNote: boolean;
+  hasEarlierOrders: boolean;
+}
+
+const NAV_REL_PREFIX = 'http://www.legislation.gov.uk/def/navigation/';
+
 export class MetadataParser {
   private parser: XMLParser;
 
@@ -172,5 +185,33 @@ export class MetadataParser {
     const metadata = legislation?.Metadata;
     const typeMetadata = metadata?.PrimaryMetadata || metadata?.SecondaryMetadata || metadata?.EUMetadata;
     return typeMetadata?.DocumentClassification?.DocumentStatus?.['@_Value'];
+  }
+
+  /**
+   * Extract navigation links from atom:link elements in the Metadata.
+   * These indicate which structural sections (introduction, signature, etc.) exist.
+   */
+  parseNavigationLinks(xml: string): NavigationLinks {
+    const obj = this.parser.parse(xml);
+    const metadata = obj?.Legislation?.Metadata;
+
+    const rels = new Set<string>();
+
+    if (metadata?.link) {
+      const links = Array.isArray(metadata.link) ? metadata.link : [metadata.link];
+      for (const link of links) {
+        const rel = link['@_rel'];
+        if (typeof rel === 'string' && rel.startsWith(NAV_REL_PREFIX)) {
+          rels.add(rel.substring(NAV_REL_PREFIX.length));
+        }
+      }
+    }
+
+    return {
+      hasIntroduction: rels.has('introduction'),
+      hasSignature: rels.has('signature'),
+      hasExplanatoryNote: rels.has('note'),
+      hasEarlierOrders: rels.has('earlier-orders'),
+    };
   }
 }

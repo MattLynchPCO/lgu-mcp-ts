@@ -14,7 +14,7 @@
     },
     "json": {
       "name": "JSON Response Formats",
-      "description": "Documentation for experimental JSON response formats (search and metadata)"
+      "description": "Documentation for JSON response formats (search, metadata, table of contents, and semantic search)"
     },
     "types": {
       "name": "Legislation Types",
@@ -27,6 +27,10 @@
     "years": {
       "name": "Regnal Years",
       "description": "Reference data for historical regnal year identifiers used in pre-1963 legislation"
+    },
+    "text": {
+      "name": "Text Format",
+      "description": "Documentation for the plain text output format converted from CLML XML"
     }
   },
   "resources": {

@@ -7,8 +7,10 @@ Model Context Protocol (MCP) server providing AI assistants with access to UK le
 ### Tools
 
 - **search_legislation** - Search for legislation by title, text, type, or year
+- **get_legislation** - Retrieve full legislation documents in XML, Akoma Ntoso, HTML, or plain-text formats
 - **get_legislation_metadata** - Get structured JSON metadata for legislation (experimental)
-- **get_legislation** - Retrieve full legislation documents in XML, Akoma Ntoso, or HTML formats
+- **get_legislation_fragment** - Retrieve a specific fragment (section, part, etc.) of a legislation document
+- **get_legislation_table_of_contents** - Retrieve the table of contents for a piece of legislation
 - **search_legislation_semantic** - Semantic search across legislation using vector index (experimental)
 - **search_legislation_sections_semantic** - Semantic search across individual sections (experimental)
 
