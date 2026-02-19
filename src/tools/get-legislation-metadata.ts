@@ -9,46 +9,13 @@ import { MetadataParser } from "../parsers/metadata-parser.js";
 
 export const name = "get_legislation_metadata";
 
-export const description = `Retrieve structured metadata for a specific piece of UK legislation.
+export const description = `Retrieve structured metadata for a UK legislation document. More efficient than fetching the full document when you only need metadata.
 
-This tool fetches metadata and returns it as clean, structured JSON with key fields extracted.
-This is more efficient than fetching the full document when you only need metadata.
+Returns JSON with: \`id\`, \`type\`, \`year\`, \`number\`, \`title\`, \`status\` (\`draft\`/\`final\`/\`revised\`/\`proposed\`), \`extent\` (e.g. \`["E","W","S","NI"]\`), and key dates (\`enactmentDate\`/\`madeDate\`).
 
-**Usage recipes:**
-- cookbook://check-extent - Check geographical extent
+Version: use a date (\`YYYY-MM-DD\`) for a point-in-time snapshot, or \`enacted\`/\`made\`/\`created\`/\`adopted\` for the original version.
 
-Returned fields:
-- id: Simplified identifier (e.g., "ukpga/2020/2")
-- type: Legislation type code (e.g., "ukpga")
-- year: Year of enactment/making (number, e.g., 2020)
-- number: Legislation number (number, e.g., 2)
-- title: Human-readable title
-- status: Version status ("draft", "final", "revised", "proposed")
-- extent: Geographical extent as array (e.g., ["E", "W", "S", "NI"])
-- enactmentDate/madeDate: Key dates in YYYY-MM-DD format
-
-Common legislation types:
-- ukpga: UK Public General Acts (Acts of Parliament)
-- uksi: UK Statutory Instruments (secondary legislation)
-- ukla: UK Local Acts
-- asp: Acts of the Scottish Parliament
-- anaw: Acts of the National Assembly for Wales
-- asc: Acts of Senedd Cymru (Welsh Parliament)
-- nia: Northern Ireland Acts
-
-Examples:
-- get_legislation_metadata(type="ukpga", year="2020", number="2") → Metadata for Direct Payments to Farmers Act 2020
-- get_legislation_metadata(type="ukpga", year="2021", number="24") → Metadata for Fire Safety Act 2021
-- get_legislation_metadata(type="ukpga", year="2020", number="2", version="2024-01-01") → Metadata as it stood on 1 Jan 2024
-- get_legislation_metadata(type="ukpga", year="2025", number="1", version="enacted") → Original enacted version metadata
-- get_legislation_metadata(type="ukpga", year="Vict/63", number="52") → Metadata for a Victorian-era Act
-
-Version parameter:
-- Date (YYYY-MM-DD): Retrieve metadata as it stood on that date
-- "enacted": Original version for UK primary legislation (status="final")
-- "made": Original version for UK secondary legislation (status="final")
-- "created": Original version for uncommon UK types like Church Instruments (status="final")
-- "adopted": Original version for EU legislation (status="final")`;
+See: \`types://guide\`, \`cookbook://point-in-time-version\`, \`cookbook://check-extent\`, \`json://metadata-response\``;
 
 export const inputSchema = {
   type: "object",

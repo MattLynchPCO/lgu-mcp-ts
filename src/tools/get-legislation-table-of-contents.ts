@@ -9,45 +9,13 @@ import { TocParser } from "../parsers/toc-parser.js";
 
 export const name = "get_legislation_table_of_contents";
 
-export const description = `Retrieve the table of contents for a specific piece of UK legislation.
+export const description = `Retrieve the table of contents for a UK legislation document. Returns structured JSON by default (\`json\`). Also available: \`xml\`, \`akn\`, \`html\`.
 
-This tool fetches the hierarchical structure of legislation documents, showing Parts, Chapters, Sections, and their headings.
+Shows the hierarchical structure (Parts, Chapters, Sections) with headings and fragment IDs for use with get_legislation_fragment.
 
-Returns structured JSON by default with semantic sections (introduction, body, schedules, etc.).
-Optional sections are only included when present in the document.
+Version: use a date (\`YYYY-MM-DD\`) for a point-in-time snapshot, or \`enacted\`/\`made\`/\`created\`/\`adopted\` for the original version.
 
-Useful for:
-- Understanding the overall structure before fetching content
-- Finding specific sections by browsing the hierarchy
-- Getting fragment IDs for use with get_legislation_fragment
-
-Available formats:
-- json (default): Structured, hierarchical JSON representation
-- xml: Raw CLML Contents element
-- akn: Akoma Ntoso format
-- html: Rendered HTML
-
-Common legislation types:
-- ukpga: UK Public General Acts (Acts of Parliament)
-- uksi: UK Statutory Instruments (secondary legislation)
-- ukla: UK Local Acts
-- asp: Acts of the Scottish Parliament
-- anaw: Acts of the National Assembly for Wales
-- asc: Acts of Senedd Cymru (Welsh Parliament)
-- nia: Northern Ireland Acts
-
-Examples:
-- get_legislation_table_of_contents(type="ukpga", year="1968", number="60") → Structure of Theft Act 1968 as JSON
-- get_legislation_table_of_contents(type="uksi", year="2020", number="1234") → Structure of specific SI
-- get_legislation_table_of_contents(type="ukpga", year="2020", number="1", version="2023-01-01") → As it stood on 1 Jan 2023
-- get_legislation_table_of_contents(type="ukpga", year="1968", number="60", format="xml") → Raw CLML Contents XML
-
-Version parameter:
-- Date (YYYY-MM-DD): Retrieve structure as it stood on that date
-- "enacted": Original version for UK primary legislation (Acts)
-- "made": Original version for UK secondary legislation (SIs, etc.)
-- "created": Original version for uncommon UK types
-- "adopted": Original version for EU legislation`;
+See: \`types://guide\`, \`cookbook://point-in-time-version\`, \`json://table-of-contents-response\``;
 
 export const inputSchema = {
   type: "object",

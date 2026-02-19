@@ -101,9 +101,20 @@ export class CLMLTextParser {
     if (name === 'ListItem') return this.formatListItem(element, indentLevel);
 
     // Wrappers — recurse into children
-    if (name === 'Para') return this.parseElement(element, indentLevel, true);
+    if (name === 'P' || name === 'Para') return this.parseElement(element, indentLevel, true);
     if (name === 'TitleBlock') return this.parseElement(element, indentLevel, true);
-    if (name === 'Legislation' || name === 'Primary' || name === 'Secondary' || name === 'Body') {
+    if (name === 'Legislation' || name === 'Primary' || name === 'Secondary' || name === 'EURetained' || name === 'Body') {
+      return this.parseElement(element, indentLevel, true);
+    }
+
+    // EU structural divisions (have Number/Title children like Part/Chapter)
+    if (name === 'EUPart') return this.formatDivision(element, indentLevel, '##');
+    if (name === 'EUTitle') return this.formatDivision(element, indentLevel, '##');
+    if (name === 'EUChapter') return this.formatDivision(element, indentLevel, '###');
+    if (name === 'EUSection' || name === 'EUSubsection') return this.formatDivision(element, indentLevel, '####');
+
+    // EU wrappers (no Number/Title of their own)
+    if (name === 'EUBody' || name === 'EUPreamble') {
       return this.parseElement(element, indentLevel, true);
     }
 
@@ -111,6 +122,15 @@ export class CLMLTextParser {
     if (name === 'PrimaryPrelims' || name === 'SecondaryPrelims') {
       return this.formatPrelims(element);
     }
+    if (name === 'EUPrelims') return this.formatEUPrelims(element, indentLevel);
+
+    // Preamble elements (secondary legislation and EU)
+    if (name === 'IntroductoryText' || name === 'EnactingText') {
+      return this.parseElement(element, indentLevel, true);
+    }
+
+    // Division (EU recitals) — Number + content
+    if (name === 'Division') return this.formatNumberedParagraph(element, indentLevel);
 
     // Skip metadata, editorial commentary, and contents
     if (name === 'Metadata') return '';
@@ -295,11 +315,85 @@ export class CLMLTextParser {
       } else if (name === 'LongTitle') {
         result += `${this.textContent(child)}\n\n`;
       } else if (name === 'DateOfEnactment' || name === 'MadeDate' || name === 'LaidDate' || name === 'ComingIntoForce') {
-        result += `${this.textContent(child)}\n\n`;
+        result += this.formatPrelimsDate(child) + '\n\n';
+      } else if (name === 'SubjectInformation') {
+        // Secondary legislation subject categories — skip (metadata, not legislative text)
+      } else if (name === 'PrimaryPreamble' || name === 'SecondaryPreamble') {
+        for (const preambleChild of this.childElements(child)) {
+          result += this.parseElement(preambleChild, 0).trim() + '\n\n';
+        }
       }
     }
 
     return result;
+  }
+
+  /**
+   * Format a date element from prelims (MadeDate, LaidDate, ComingIntoForce, etc.).
+   * These contain child elements like <Text>Made</Text><DateText>1st Jan 2024</DateText>
+   * which must be joined with spaces, not concatenated via textContent.
+   *
+   * ComingIntoForce can also contain ComingIntoForceClauses sub-elements, each with
+   * their own Text + DateText pair (for staggered commencement dates).
+   */
+  private formatPrelimsDate(element: Element): string {
+    const topParts: string[] = [];
+    const clauses: string[] = [];
+    for (const child of this.childElements(element)) {
+      if (child.localName === 'ComingIntoForceClauses') {
+        // Each clause has its own Text + DateText pair
+        const clauseParts: string[] = [];
+        for (const clauseChild of this.childElements(child)) {
+          const text = this.textContent(clauseChild);
+          if (text) clauseParts.push(text);
+        }
+        if (clauseParts.length) clauses.push(clauseParts.join(' '));
+      } else {
+        const text = this.textContent(child);
+        if (text) topParts.push(text);
+      }
+    }
+    const top = topParts.join(' ');
+    if (clauses.length === 0) return top;
+    return [top, ...clauses].filter(Boolean).join('\n');
+  }
+
+  private formatEUPrelims(element: Element, indentLevel: number): string {
+    let result = '';
+
+    for (const child of this.childElements(element)) {
+      const name = child.localName;
+      if (name === 'MultilineTitle') {
+        // MultilineTitle contains multiple <Text> children — join with newlines
+        const lines: string[] = [];
+        for (const textEl of this.childElements(child)) {
+          const text = (textEl.textContent || '').replace(/\s+/g, ' ').trim();
+          if (text) lines.push(text);
+        }
+        result += `# ${lines.join('\n')}\n\n`;
+      } else if (name === 'EUPreamble') {
+        result += this.parseElement(child, indentLevel, true);
+      } else if (name === 'CommentaryRef') {
+        // Skip
+      } else {
+        result += this.parseElement(child, indentLevel);
+      }
+    }
+
+    return result;
+  }
+
+  private formatNumberedParagraph(element: Element, indentLevel: number): string {
+    let number = '';
+    let content = '';
+    for (const child of this.childElements(element)) {
+      if (child.localName === 'Number') {
+        number = this.textContent(child);
+      } else {
+        content += this.parseElement(child, indentLevel);
+      }
+    }
+    return number ? `\n${number} ${content.trim()}\n` : content;
   }
 
   private formatFootnote(element: Element): string {

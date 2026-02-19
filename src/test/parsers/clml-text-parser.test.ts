@@ -589,3 +589,79 @@ test('parser is reusable across multiple calls', () => {
   assert.ok(result1.includes('1) First.'), 'First parse should work');
   assert.ok(result2.includes('2) Second.'), 'Second parse should work (state reset)');
 });
+
+test('SecondaryPrelims date labels are separated from dates', () => {
+  const xml = `<SecondaryPrelims><Number>2024 No. 123</Number><Title>The Example Regulations 2024</Title><MadeDate><Text>Made</Text><DateText>1st January 2024</DateText></MadeDate><LaidDate><Text>Laid before Parliament</Text><DateText>5th January 2024</DateText></LaidDate><ComingIntoForce><Text>Coming into force</Text><DateText>1st February 2024</DateText></ComingIntoForce></SecondaryPrelims>`;
+
+  const parser = new CLMLTextParser();
+  const result = parser.parse(xml);
+
+  assert.ok(result.includes('Made 1st January 2024'), 'Should separate Made label from date');
+  assert.ok(result.includes('Laid before Parliament 5th January 2024'), 'Should separate Laid label from date');
+  assert.ok(result.includes('Coming into force 1st February 2024'), 'Should separate Coming into force label from date');
+});
+
+test('SecondaryPreamble is included in secondary prelims', () => {
+  const xml = `
+    <SecondaryPrelims>
+      <Title>The Example Regulations 2024</Title>
+      <SecondaryPreamble>
+        <IntroductoryText>
+          <P><Text>The Secretary of State makes these Regulations.</Text></P>
+        </IntroductoryText>
+        <EnactingText>
+          <Para><Text>A draft has been laid before Parliament.</Text></Para>
+        </EnactingText>
+      </SecondaryPreamble>
+    </SecondaryPrelims>`;
+
+  const parser = new CLMLTextParser();
+  const result = parser.parse(xml);
+
+  assert.ok(result.includes('The Secretary of State makes these Regulations.'), 'Should include introductory text');
+  assert.ok(result.includes('A draft has been laid before Parliament.'), 'Should include enacting text');
+});
+
+test('EUPrelims MultilineTitle renders with line breaks', () => {
+  const xml = `
+    <EURetained>
+      <EUPrelims>
+        <MultilineTitle>
+          <Text>Regulation (EU) 2016/679 of the European Parliament and of the Council</Text>
+          <Text>of 27 April 2016</Text>
+          <Text>on the protection of natural persons</Text>
+        </MultilineTitle>
+      </EUPrelims>
+    </EURetained>`;
+
+  const parser = new CLMLTextParser();
+  const result = parser.parse(xml);
+
+  assert.ok(result.includes('# Regulation (EU) 2016/679'), 'Should format as heading');
+  assert.ok(!result.includes('Councilof'), 'Should not concatenate title lines without spaces');
+  assert.ok(result.includes('of 27 April 2016'), 'Should include second title line');
+});
+
+test('EU Division renders as numbered paragraph', () => {
+  const xml = `
+    <EURetained>
+      <EUPrelims>
+        <EUPreamble>
+          <Division id="division-1">
+            <Number>(1)</Number>
+            <P><Text>The protection of natural persons is a fundamental right.</Text></P>
+          </Division>
+          <Division id="division-2">
+            <Number>(2)</Number>
+            <P><Text>The principles should respect fundamental freedoms.</Text></P>
+          </Division>
+        </EUPreamble>
+      </EUPrelims>
+    </EURetained>`;
+
+  const parser = new CLMLTextParser();
+  const result = parser.parse(xml);
+
+  assert.ok(result.includes('(1) The protection of natural persons is a fundamental right.'), 'Should format division with number');
+  assert.ok(result.includes('(2) The principles should respect fundamental freedoms.'), 'Should format second division');
+});

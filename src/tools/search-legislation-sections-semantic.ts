@@ -13,30 +13,11 @@ import {
 
 export const name = "search_legislation_sections_semantic";
 
-export const description = `Semantic search across legislation sections using a vector index.
+export const description = `Semantic search across individual legislation sections using a vector index. Returns sections ranked by relevance, with \`provisionId\`, \`number\`, legislation identifier, \`extent\`, and optionally the section text (\`includeText=true\`, slower).
 
-Returns individual sections ranked by relevance to your query, including the actual section text.
+Note: The index is a snapshot and may lag behind live legislation.gov.uk. Verify critical results with \`search_legislation\`. Does not include Act titles — use \`get_legislation_metadata\` to look up titles by identifier.
 
-IMPORTANT: This tool searches a pre-computed vector index that may not reflect the most recent legislation.
-The index is a snapshot and may be days or weeks behind the live legislation.gov.uk dataset. For critical
-research or to ensure you have the latest amendments, verify results against search_legislation or the
-live website.
-
-Returned fields:
-- provisionId: Section fragment path (e.g., "section/1", "regulation/5"). May fall back to document ID if fragment is unavailable.
-- provisionType: Section type (e.g., "section", "regulation")
-- number: Section number
-- legislation: Parent legislation object with id (e.g., "ukpga/2018/12"), type, year, number
-- text: Section text (unless includeText=false)
-- extent: Geographical extent codes (e.g., ["E", "W"] for England and Wales)
-
-Usage:
-- Call with a query to find relevant sections across all legislation
-- Use includeText=true to retrieve the actual section text (slower)
-
-Notes:
-- Does not include Act title, but provides legislation identifier (e.g., "ukpga/2018/12") which can be used directly with get_legislation_metadata to retrieve title and other details.
-- Year filters (yearFrom/yearTo) do not work reliably for regnal-year legislation.`;
+See: \`cookbook://semantic-search-workflow\`, \`json://semantic-section-response\``;
 
 export const inputSchema = {
   type: "object",

@@ -9,46 +9,17 @@ import { CLMLTextParser } from "../parsers/clml-text-parser.js";
 
 export const name = "get_legislation";
 
-export const description = `Retrieve a specific piece of UK legislation by citation in CLML (Crown Legislation Markup Language) XML format.
+export const description = `Retrieve a full UK legislation document by type, year, and number. Returns readable plain text by default (\`text\`). Also available: \`xml\` (CLML with full metadata), \`akn\` (Akoma Ntoso), \`html\`.
 
-This tool fetches full legislation documents from legislation.gov.uk by their type, year, and number.
+Text is best for reading and summarisation. It discards semantic markup, amendment commentaries, and structural metadata — use \`xml\` to track amendments, follow cross-references, or check in-force status.
 
-Returns CLML XML by default - a structured, machine-readable format that preserves all legislative metadata and content.
+For large documents, use get_legislation_table_of_contents first, then get_legislation_fragment for specific sections.
 
-**For help parsing CLML XML structure, read the resource at: clml://schema-guide**
-**For step-by-step examples, see: cookbook://check-extent**
+Common types: \`ukpga\` (Acts), \`uksi\` (SIs), \`asp\` (Scottish Acts), \`asc\` (Welsh Acts), \`nia\` (NI Acts).
 
-Available formats:
-- xml (default): CLML format - UK-specific legislative XML schema
-- text: Plain-text rendering of CLML content, readable without XML knowledge
-- akn: Akoma Ntoso format - international LegalDocML standard
-- html: Rendered HTML for human reading
+Version: use a date (\`YYYY-MM-DD\`) for a point-in-time snapshot, or \`enacted\`/\`made\`/\`created\`/\`adopted\` for the original version.
 
-Common legislation types:
-- ukpga: UK Public General Acts (Acts of Parliament)
-- uksi: UK Statutory Instruments (secondary legislation)
-- ukla: UK Local Acts
-- asp: Acts of the Scottish Parliament
-- ukia: UK Impact Assessments
-- anaw: Acts of the National Assembly for Wales
-- asc: Acts of Senedd Cymru (Welsh Parliament)
-- nia: Northern Ireland Acts
-
-Examples:
-- get_legislation(type="ukpga", year="1968", number="60") → Theft Act 1968 in CLML XML
-- get_legislation(type="uksi", year="2020", number="1234") → Specific SI in CLML XML
-- get_legislation(type="ukpga", year="2020", number="1", version="2023-01-01") → As it stood on 1 Jan 2023
-- get_legislation(type="ukpga", year="2025", number="1", version="enacted") → Original enacted version
-- get_legislation(type="ukpga", year="1968", number="60", format="akn") → Akoma Ntoso XML format
-- get_legislation(type="ukpga", year="1968", number="60", format="html") → HTML rendering
-- get_legislation(type="ukpga", year="Vict/63", number="52") → A Victorian-era Act in CLML XML
-
-Version parameter:
-- Date (YYYY-MM-DD): Retrieve legislation as it stood on that date
-- "enacted": Original version for UK primary legislation (Acts)
-- "made": Original version for UK secondary legislation (SIs, etc.)
-- "created": Original version for uncommon UK types (e.g., Church Instruments)
-- "adopted": Original version for EU legislation`;
+See: \`types://guide\`, \`cookbook://point-in-time-version\`, \`text://format-guide\``;
 
 export const inputSchema = {
   type: "object",
@@ -68,7 +39,7 @@ export const inputSchema = {
     format: {
       type: "string",
       enum: ["xml", "text", "akn", "html"],
-      description: "Response format (default: xml for CLML, text for plain-text rendering, akn for Akoma Ntoso, html for rendered version)",
+      description: "Response format (default: text for readable plain text, xml for CLML, akn for Akoma Ntoso, html for rendered version)",
     },
     version: {
       type: "string",
@@ -88,7 +59,7 @@ export async function execute(
   },
   client: LegislationClient
 ): Promise<any> {
-  const { type, year, number, format = "xml", version } = args;
+  const { type, year, number, format = "text", version } = args;
 
   try {
     const apiFormat = format === "text" ? "xml" : format;

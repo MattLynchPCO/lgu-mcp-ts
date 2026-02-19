@@ -1,43 +1,74 @@
 # Text Format Guide
 
-Plain text output format for `get_legislation` and `get_legislation_fragment` when using `format="text"`. Converted from CLML XML into a readable, markdown-inspired format designed for AI consumption.
+The default output format for `get_legislation` and `get_legislation_fragment`. Converted from CLML XML into a readable, markdown-inspired plain text format designed for AI consumption.
 
 ## Document Structure
 
-A full document follows this hierarchy:
+### UK Primary Legislation (Acts)
 
 ```
-# Act Title                          (from PrimaryPrelims/SecondaryPrelims)
-2024 CHAPTER 1                       (chapter/instrument number)
-Long title text...                   (purpose of the legislation)
-[30th January 2024]                  (date of enactment/making)
+# Equality Act 2010                   (title)
+2010 c. 15                            (chapter number)
+An Act to make provision...            (long title / purpose)
+[8th April 2010]                       (date of enactment)
 
-## Part 1                            (major division)
-## Part Title
+## Part 1                              (major division)
+## Socio-economic inequalities
 
-### Chapter 1                        (subdivision within a Part)
+### Chapter 1                          (subdivision within a Part)
 ### Chapter Title
 
-#### Cross-heading                   (groups related sections, from Pblock)
+#### Cross-heading                     (groups related sections, from Pblock)
 
-##### Sub cross-heading              (lower-level grouping, from PsubBlock)
+##### Sub cross-heading                (lower-level grouping, from PsubBlock)
 
-Section 1) **Section Title**         (from P1group)
-1) Section text...                   (provisions)
-  a) Subsection text...              (nested provisions, indented)
-    i) Paragraph text...             (deeper nesting)
+Section 1) **Section Title**           (from P1group)
+1) Section text...                     (provisions)
+  a) Subsection text...                (nested provisions, indented)
+    i) Paragraph text...               (deeper nesting)
 
-## SCHEDULES                         (schedules wrapper heading)
+## SCHEDULES                           (schedules wrapper heading)
 
-## Schedule 1                        (individual schedule)
+## Schedule 1                          (individual schedule)
 ## Schedule Title
+```
+
+### UK Secondary Legislation (Statutory Instruments)
+
+```
+2024 No. 49                            (instrument number)
+# The Example Regulations 2024         (title)
+Made 17th January 2024                 (date labels joined with dates)
+Laid before Parliament 20th January 2024
+Coming into force 1st February 2024
+
+The Secretary of State makes these...  (preamble / enabling power)
+A draft has been laid before...        (enacting text)
+
+## PART 1
+## Introduction
+...
+```
+
+### EU Retained Legislation
+
+```
+# Regulation (EU) 2016/679 of the European Parliament and of the Council
+of 27 April 2016
+on the protection of natural persons...
+(Text with EEA relevance)
+
+THE EUROPEAN PARLIAMENT AND...         (preamble)
+
+(1) The protection of natural persons... (recitals as numbered paragraphs)
+(2) The principles should respect...
 ```
 
 ## Heading Levels
 
 | Markdown | CLML Source | Purpose |
 |----------|------------|---------|
-| `#` | PrimaryPrelims / SecondaryPrelims Title | Act or instrument title |
+| `#` | PrimaryPrelims / SecondaryPrelims / EUPrelims Title | Act, instrument, or regulation title |
 | `##` | Part, Schedule, Schedules | Major structural divisions |
 | `###` | Chapter | Subdivision within a Part |
 | `####` | Pblock | Cross-heading (groups related sections) |
@@ -97,13 +128,21 @@ Quoted amendments (text being inserted/substituted into other legislation) appea
 
 - **Metadata** (`<Metadata>`) - document metadata (use `get_legislation_metadata` instead)
 - **Commentaries** - editorial notes explaining the source of amendments
-- **Contents** - table of contents (redundant when full text is provided)
+- **Contents** - table of contents (use `get_legislation_table_of_contents` instead)
 
 ## What Is Included But Simplified
 
 - **Footnotes** - authorial notes, rendered as plain text with line breaks between them
 - **Figures/Images** - rendered as `[Figure]` placeholder
 - **Inline markup** (Citation, Emphasis, Addition, Substitution, Repeal, etc.) - text content is preserved, formatting is stripped
+- **Secondary legislation preambles** - the enabling power and enacting text
+
+## Other Formats
+
+If you need structured data rather than readable text:
+- `format="xml"` returns CLML XML with full legislative markup and metadata (see `clml://schema-guide`)
+- `format="akn"` returns Akoma Ntoso XML (international LegalDocML standard)
+- `format="html"` returns rendered HTML
 
 ## Consistency with Semantic Search
 

@@ -34,6 +34,10 @@
     }
   },
   "resources": {
+    "types://data": {
+      "name": "UK Legislation Types (JSON)",
+      "description": "Machine-readable list of all UK legislation type codes with short codes, long names, and categories. Use types://guide for the human-readable reference."
+    },
     "clml://metadata/extent": {
       "name": "Geographical Extent in CLML",
       "description": "Understanding restrictExtent attributes and territorial application of UK legislation"

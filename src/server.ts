@@ -20,6 +20,7 @@ import * as getLegislationTableOfContents from "./tools/get-legislation-table-of
 import * as searchLegislation from "./tools/search-legislation.js";
 import * as searchLegislationSemantic from "./tools/search-legislation-semantic.js";
 import * as searchLegislationSectionsSemantic from "./tools/search-legislation-sections-semantic.js";
+import * as getResource from "./tools/get-resource.js";
 
 // Import API clients
 import { LegislationClient } from "./api/legislation-client.js";
@@ -89,6 +90,11 @@ export function createServer(): Server {
           description: searchLegislationSectionsSemantic.description,
           inputSchema: searchLegislationSectionsSemantic.inputSchema,
         },
+        {
+          name: getResource.name,
+          description: getResource.description,
+          inputSchema: getResource.inputSchema,
+        },
       ],
     };
   });
@@ -119,6 +125,9 @@ export function createServer(): Server {
 
         case searchLegislationSectionsSemantic.name:
           return await searchLegislationSectionsSemantic.execute(args as any, lexClient);
+
+        case getResource.name:
+          return await getResource.execute(args as any, resourceLoader);
 
         default:
           throw new Error(`Unknown tool: ${name}`);

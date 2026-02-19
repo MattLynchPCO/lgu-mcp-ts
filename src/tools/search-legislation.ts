@@ -9,37 +9,11 @@ import { AtomParser } from "../parsers/atom-parser.js";
 
 export const name = "search_legislation";
 
-export const description = `Search for UK legislation by keyword, title, or other criteria.
+export const description = `Search for UK legislation by keyword, title, or other criteria on legislation.gov.uk. Returns JSON by default (set \`format="xml"\` for raw Atom feed).
 
-This tool provides flexible search across all UK legislation hosted on legislation.gov.uk.
+Results include: \`id\`, \`type\`, \`year\`, \`number\`, \`title\`, and \`date\`. Use \`title\` for title search, \`text\` for full-text search. Filter by \`type\`, \`year\`, or \`startYear\`/\`endYear\` range.
 
-Returns clean JSON by default with an array of matching documents. Set format="xml" for raw Atom feed.
-
-Returned fields (JSON format):
-- id: Simplified identifier (e.g., "ukpga/2021/24")
-- type: Legislation type code (e.g., "ukpga")
-- year: Year of enactment/making (number, e.g., 2021)
-- number: Legislation number (number, e.g., 24)
-- title: Human-readable title
-- date: Creation date (optional, e.g., "2021-04-29")
-
-Search parameters:
-- title: Search in legislation titles (e.g., "theft", "coronavirus")
-- text: Full-text search across legislation content
-- type: Filter by legislation type (ukpga, uksi, asp, etc.)
-- year: Filter by specific year
-- startYear/endYear: Filter by year range
-- format: Response format (json or xml, default: json)
-
-Examples:
-- search_legislation(title="theft") → All legislation with "theft" in the title
-- search_legislation(title="coronavirus", year="2020") → COVID legislation from 2020
-- search_legislation(text="data protection", type="ukpga") → Acts containing "data protection"
-- search_legislation(type="uksi", startYear="2020", endYear="2023") → SIs from 2020-2023
-
-Common workflows:
-- Search → get_legislation to retrieve full document
-- Search → get_legislation_metadata to check geographical extent (see: cookbook://check-extent)`;
+See: \`types://guide\`, \`json://search-response\`, \`atom://feed-guide\``;
 
 export const inputSchema = {
   type: "object",
