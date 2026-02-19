@@ -1,0 +1,9 @@
+{
+	"servers": {
+		"legislation-gov-uk": {
+			"url": "https://mcp.l9n.org/mcp",
+			"type": "http"
+		}
+	},
+	"inputs": []
+}
