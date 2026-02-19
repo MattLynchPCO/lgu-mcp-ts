@@ -11,7 +11,7 @@ export const name = "search_legislation";
 
 export const description = `Search for UK legislation by keyword, title, or other criteria on legislation.gov.uk. Returns JSON by default (set \`format="xml"\` for raw Atom feed).
 
-Results include: \`id\`, \`type\`, \`year\`, \`number\`, \`title\`, and \`date\`. Use \`title\` for title search, \`text\` for full-text search. Filter by \`type\`, \`year\`, or \`startYear\`/\`endYear\` range.
+Results include: \`id\`, \`type\`, \`year\`, \`number\`, \`title\`, and \`date\`. Use \`title\` for title search, \`text\` for full-text search. Filter by \`type\`, \`year\`, or \`startYear\`/\`endYear\` range. Returns 20 results per page — use \`page\` to paginate; check \`meta.morePages\` in the response.
 
 See: \`types://guide\`, \`json://search-response\`, \`atom://feed-guide\``;
 
@@ -42,6 +42,10 @@ export const inputSchema = {
       type: "string",
       description: "End of year range (inclusive)",
     },
+    page: {
+      type: "number",
+      description: "Page number (default: 1, 20 results per page)",
+    },
     format: {
       type: "string",
       enum: ["json", "xml"],
@@ -58,6 +62,7 @@ export async function execute(
     year?: string;
     startYear?: string;
     endYear?: string;
+    page?: number;
     format?: "json" | "xml";
   },
   client: LegislationClient

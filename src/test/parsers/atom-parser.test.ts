@@ -48,6 +48,16 @@ test('AtomParser parses single entry feed', () => {
   assert.strictEqual(doc.date, '2026-01-22', 'Should extract creation date');
 });
 
+test('AtomParser extracts pagination metadata from leg:page and leg:morePages', () => {
+  // The sample feed has leg:page=1, leg:morePages=12 but no openSearch:totalResults
+  const parser = new AtomParser();
+  const result = parser.parse(SAMPLE_ATOM_FEED);
+
+  assert.strictEqual(result.meta.page, 1, 'Should read page from leg:page');
+  assert.strictEqual(result.meta.morePages, true, 'Should detect more pages from leg:morePages > 0');
+  assert.strictEqual(result.meta.itemsPerPage, 20, 'Should read itemsPerPage from openSearch:itemsPerPage');
+});
+
 test('AtomParser handles empty feed', () => {
   const parser = new AtomParser();
   const emptyFeed = `

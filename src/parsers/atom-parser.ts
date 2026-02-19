@@ -38,10 +38,20 @@ export interface SearchResult {
 }
 
 /**
+ * Pagination metadata from OpenSearch elements in the Atom feed
+ */
+export interface SearchMeta {
+  totalResults?: number;
+  page: number;
+  itemsPerPage: number;
+  morePages: boolean;
+}
+
+/**
  * Search response envelope
  */
 export interface SearchResponse {
-  // TODO: Add meta field for pagination (itemsPerPage, startIndex, page, morePages)
+  meta: SearchMeta;
   documents: SearchResult[];
 }
 
@@ -87,7 +97,21 @@ export class AtomParser {
       };
     });
 
+    const parsedTotal = parseInt(feed.totalResults, 10);
+    const totalResults = isNaN(parsedTotal) ? undefined : parsedTotal;
+    const itemsPerPage = parseInt(feed.itemsPerPage, 10) || 20;
+    const startIndex = parseInt(feed.startIndex, 10) || 1;
+    // Prefer leg:page (current page number) over computing from startIndex
+    const page = parseInt(feed.page, 10) || Math.ceil(startIndex / itemsPerPage);
+    // Prefer leg:morePages (remaining page count) over OpenSearch totalResults calculation,
+    // as feeds may omit openSearch:totalResults while still providing leg:morePages
+    const legMorePages = parseInt(feed.morePages, 10);
+    const morePages = isNaN(legMorePages)
+      ? totalResults !== undefined && startIndex + itemsPerPage - 1 < totalResults
+      : legMorePages > 0;
+
     return {
+      meta: { totalResults, page, itemsPerPage, morePages },
       documents
     };
   }

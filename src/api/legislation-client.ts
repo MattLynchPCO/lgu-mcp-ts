@@ -126,6 +126,7 @@ export class LegislationClient {
     year?: string;
     startYear?: string;
     endYear?: string;
+    page?: number;
   }): Promise<string> {
     const queryParams = new URLSearchParams();
 
@@ -135,6 +136,7 @@ export class LegislationClient {
     if (params.year) queryParams.append("year", params.year);
     if (params.startYear) queryParams.append("start-year", params.startYear);
     if (params.endYear) queryParams.append("end-year", params.endYear);
+    if (params.page && params.page > 1) queryParams.append("page", String(params.page));
 
     const url = `${this.baseUrl}/search/data.feed?${queryParams.toString()}`;
 
