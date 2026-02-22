@@ -9,11 +9,11 @@ import { mapLegislationSearchResponse } from "../api/lex-mapper.js";
 
 export const name = "search_legislation_semantic";
 
-export const description = `Semantic search across legislation using a vector index. Returns Acts ranked by relevance, with their best-matching section identifiers and scores.
+export const description = `Semantic search for finding which Acts are relevant to a query. Uses the same underlying section search as \`search_legislation_sections_semantic\`, but returns parent legislation ranked by relevance, with their best-matching section identifiers and scores.
+
+Returns section identifiers only, not text. Pagination (\`offset\`/\`limit\`) operates at the legislation level. Use \`search_legislation_sections_semantic\` when you need section-level results or section text, or \`get_legislation\` for the full Act.
 
 Note: The index is a snapshot and may lag behind live legislation.gov.uk. Verify critical results with \`search_legislation\`.
-
-Returns section identifiers only, not text. Use \`search_legislation_sections_semantic\` for section text, or \`get_legislation\` for the full Act.
 
 See: \`cookbook://semantic-search-workflow\`, \`json://semantic-search-response\``;
 

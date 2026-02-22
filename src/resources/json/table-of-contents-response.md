@@ -174,10 +174,10 @@ search_legislation(title="Fire Safety")
 get_legislation_table_of_contents(type="ukpga", year="2021", number="24")
 
 // 3. Use a fragmentId from the ToC to fetch a specific section
-get_legislation_fragment(type="ukpga", year="2021", number="24", fragment="section/1")
+get_legislation_fragment(type="ukpga", year="2021", number="24", fragmentId="section/1")
 
 // 4. Fetch a schedule
-get_legislation_fragment(type="ukpga", year="2021", number="24", fragment="schedule/1")
+get_legislation_fragment(type="ukpga", year="2021", number="24", fragmentId="schedule/1")
 ```
 
 ## Related Resources

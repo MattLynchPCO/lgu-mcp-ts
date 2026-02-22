@@ -11,6 +11,8 @@ export const name = "get_legislation_metadata";
 
 export const description = `Retrieve structured metadata for a UK legislation document. More efficient than fetching the full document when you only need metadata.
 
+\`type\`, \`year\`, and \`number\` must be exact — use search_legislation to confirm if unsure.
+
 Returns JSON with: \`id\`, \`type\`, \`year\`, \`number\`, \`title\`, \`status\` (\`draft\`/\`final\`/\`revised\`/\`proposed\`), \`extent\` (e.g. \`["E","W","S","NI"]\`), and key dates (\`enactmentDate\`/\`madeDate\`).
 
 Version: use a date (\`YYYY-MM-DD\`) for a point-in-time snapshot, or \`enacted\`/\`made\`/\`created\`/\`adopted\` for the original version.

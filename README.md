@@ -6,17 +6,18 @@ Model Context Protocol (MCP) server providing AI assistants with access to UK le
 
 ### Tools
 
-- **search_legislation** - Search for legislation by title, text, type, or year
-- **get_legislation** - Retrieve full legislation documents in XML, Akoma Ntoso, HTML, or plain-text formats
+- **search_legislation** - Search for legislation by keyword, title, type, or year. Returns 20 results per page with pagination support (`page` parameter, `meta.morePages` flag).
+- **get_legislation** - Retrieve full legislation documents. Default format is plain text; also supports XML (CLML), Akoma Ntoso, and HTML.
 - **get_legislation_metadata** - Get structured JSON metadata for legislation (experimental)
-- **get_legislation_fragment** - Retrieve a specific fragment (section, part, etc.) of a legislation document
-- **get_legislation_table_of_contents** - Retrieve the table of contents for a piece of legislation
+- **get_legislation_fragment** - Retrieve a specific fragment (section, part, etc.) of a legislation document. Default format is plain text.
+- **get_legislation_table_of_contents** - Retrieve the table of contents for a piece of legislation. Default format is structured JSON.
 - **search_legislation_semantic** - Semantic search across legislation using vector index (experimental)
 - **search_legislation_sections_semantic** - Semantic search across individual sections (experimental)
+- **get_resource** - Fetch an MCP resource by URI. Intended for API-connected agents that support tool calls but cannot access MCP resources directly; not needed for local MCP clients.
 
 ### Resources
 
-The server provides comprehensive documentation resources:
+The server provides documentation resources including:
 
 - `guide://getting-started` - Overview and basic workflow
 - `clml://schema-guide` - CLML XML structure reference
@@ -24,7 +25,7 @@ The server provides comprehensive documentation resources:
 - `atom://feed-guide` - Search result parsing guide
 - `types://guide` - Legislation types reference
 - `types://data` - Legislation types JSON data
-- `cookbook://check-extent` - Step-by-step recipes for common tasks
+- `cookbook://check-extent` - How to determine which UK jurisdictions a piece of legislation applies to
 
 ## Installation
 

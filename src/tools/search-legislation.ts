@@ -28,7 +28,7 @@ export const inputSchema = {
     },
     type: {
       type: "string",
-      description: "Filter by legislation type (e.g., ukpga, uksi, asp)",
+      description: "Filter by legislation type: use `primary` for all Acts or `secondary` for all SIs across all jurisdictions, or a specific type code (e.g. ukpga, uksi, asp)",
     },
     year: {
       type: "string",
