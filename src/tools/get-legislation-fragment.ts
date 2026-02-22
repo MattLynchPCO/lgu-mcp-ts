@@ -13,7 +13,7 @@ export const description = `Retrieve a fragment (section, part, chapter, etc.) o
 
 Text is best for reading and summarisation. It discards semantic markup, amendment commentaries, and structural metadata — use \`xml\` to track amendments, follow cross-references, or check in-force status.
 
-Use get_legislation_table_of_contents to discover fragment IDs. Common fragmentId patterns: \`section/1\`, \`part/2\`, \`part/1/chapter/3\`, \`regulation/5\`, \`crossheading/name\`. The API does not support fragment IDs deeper than the section or regulation level (e.g. \`section/1/a\` is not a valid ID).
+\`type\`, \`year\`, and \`number\` must be exact — use search_legislation to confirm if unsure. Use get_legislation_table_of_contents to discover fragment IDs. Common fragmentId patterns: \`section/1\`, \`part/2\`, \`part/1/chapter/3\`, \`regulation/5\`, \`crossheading/name\`. The API does not support fragment IDs deeper than the section or regulation level (e.g. \`section/1/a\` is not a valid ID).
 
 Version: use a date (\`YYYY-MM-DD\`) for a point-in-time snapshot, or \`enacted\`/\`made\`/\`created\`/\`adopted\` for the original version.
 

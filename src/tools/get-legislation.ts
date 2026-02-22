@@ -15,7 +15,7 @@ Text is best for reading and summarisation. It discards semantic markup, amendme
 
 For large documents, use get_legislation_table_of_contents first, then get_legislation_fragment for specific sections.
 
-Common types: \`ukpga\` (Acts), \`uksi\` (SIs), \`asp\` (Scottish Acts), \`asc\` (Welsh Acts), \`nia\` (NI Acts).
+Common types: \`ukpga\` (Acts), \`uksi\` (SIs), \`asp\` (Scottish Acts), \`asc\` (Welsh Acts), \`nia\` (NI Acts). \`type\`, \`year\`, and \`number\` must be exact — use search_legislation to confirm if unsure.
 
 Version: use a date (\`YYYY-MM-DD\`) for a point-in-time snapshot, or \`enacted\`/\`made\`/\`created\`/\`adopted\` for the original version.
 

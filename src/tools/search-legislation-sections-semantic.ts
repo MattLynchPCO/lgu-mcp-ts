@@ -13,7 +13,9 @@ import {
 
 export const name = "search_legislation_sections_semantic";
 
-export const description = `Semantic search across individual legislation sections using a vector index. Returns sections ranked by relevance, with \`provisionId\`, \`number\`, legislation identifier, \`extent\`, and optionally the section text (\`includeText=true\`, slower).
+export const description = `Semantic search for finding which individual sections are relevant to a query. Returns section hits directly (rather than grouped by Act) ranked by relevance.
+
+Returns sections with \`provisionId\`, \`number\`, legislation identifier, \`extent\`, and optionally section text (\`includeText=true\`, slower). Pagination (\`offset\`/\`limit\`) operates at the section level. Use \`search_legislation_semantic\` when you want legislation-level results instead.
 
 Note: The index is a snapshot and may lag behind live legislation.gov.uk. Verify critical results with \`search_legislation\`. Does not include Act titles — use \`get_legislation_metadata\` to look up titles by identifier.
 
