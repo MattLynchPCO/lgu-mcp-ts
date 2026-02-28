@@ -16,6 +16,7 @@
     "watch:tsc": "tsc --watch",
     "watch:copy": "copyfiles -u 1 'src/resources/**/*' build/ --watch",
     "start": "node build/index.js",
+    "chat": "node scripts/mcp-chatbot.js",
     "inspector": "npx @modelcontextprotocol/inspector node build/index.js",
     "test": "npm run build && node --test build/test/**/*.test.js"
   },
