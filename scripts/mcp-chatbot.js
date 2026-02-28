@@ -409,12 +409,32 @@ async function main() {
     { capabilities: {} }
   );
 
-  await legislationClient.connect(legislationTransport);
-  await helpClient.connect(helpTransport);
+  console.error("Connecting to legislation server...");
+  try {
+    await legislationClient.connect(legislationTransport);
+    console.error("✓ Connected to legislation server");
+  } catch (error) {
+    console.error("✗ Failed to connect to legislation server:", error.message);
+    throw error;
+  }
+
+  console.error("Connecting to help server...");
+  try {
+    await helpClient.connect(helpTransport);
+    console.error("✓ Connected to help server");
+  } catch (error) {
+    console.error("✗ Failed to connect to help server:", error.message);
+    throw error;
+  }
 
   // Collect tools from both servers and map each tool name to its client.
+  console.error("Listing tools from legislation server...");
   const { tools: legislationTools } = await legislationClient.listTools();
+  console.error(`✓ Found ${legislationTools.length} tools from legislation server`);
+
+  console.error("Listing tools from help server...");
   const { tools: helpTools } = await helpClient.listTools();
+  console.error(`✓ Found ${helpTools.length} tools from help server`);
 
   const toolClientMap = new Map();
   for (const tool of legislationTools) {

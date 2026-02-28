@@ -9,10 +9,11 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { serve } from "@hono/node-server";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
+import { Server} from "@modelcontextprotocol/sdk/server/index.js";
 import { createServer, getResourceLoader } from "../server.js";
 
 export interface HttpAppOptions {
-  transport?: WebStandardStreamableHTTPServerTransport;
+  mcpServer?: Server;
   serverKey?: string;
 }
 
@@ -21,7 +22,7 @@ export interface HttpAppOptions {
  * Exported for testing.
  */
 export function createHttpApp(options: HttpAppOptions = {}): Hono {
-  const { transport, serverKey } = options;
+  const { mcpServer, serverKey } = options;
 
   const app = new Hono();
 
@@ -64,9 +65,15 @@ export function createHttpApp(options: HttpAppOptions = {}): Hono {
     });
   }
 
-  // MCP endpoint - handles GET, POST, DELETE
-  if (transport) {
-    app.all("/mcp", (c) => transport.handleRequest(c.req.raw));
+  // MCP endpoint - creates a new server and transport per request
+  if (mcpServer) {
+    app.all("/mcp", async (c) => {
+      // Create a new server instance for this request
+      const requestServer = createServer();
+      const transport = new WebStandardStreamableHTTPServerTransport();
+      await requestServer.connect(transport);
+      return transport.handleRequest(c.req.raw);
+    });
   }
 
   return app;
@@ -78,16 +85,12 @@ export function createHttpApp(options: HttpAppOptions = {}): Hono {
 export async function startHttpServer(): Promise<void> {
   const port = parseInt(process.env.PORT || "3000", 10);
 
-  // Create MCP server and transport
+  // Create MCP server
   const mcpServer = createServer();
-  const transport = new WebStandardStreamableHTTPServerTransport();
 
   // Create Hono app
   const serverKey = process.env.MCP_SERVER_KEY;
-  const app = createHttpApp({ transport, serverKey });
-
-  // Connect server to transport
-  await mcpServer.connect(transport);
+  const app = createHttpApp({ mcpServer, serverKey });
 
   // Log startup info
   const resourceLoader = getResourceLoader();

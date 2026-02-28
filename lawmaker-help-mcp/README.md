@@ -15,21 +15,29 @@ npm install
 npm run build
 ```
 
-### 2. Build the vector index
+### 2. Configure environment
+
+Copy the example environment file and add your OpenAI API key:
+
+```bash
+cp .env.example .env
+# Edit .env and set OPENAI_API_KEY=sk-...
+```
+
+### 3. Build the vector index
 
 The index must be built before the server can answer search queries. This crawls the help site, generates embeddings via the OpenAI API, and saves them locally.
 
 ```bash
-export OPENAI_API_KEY=sk-...
 npm run build-index
 ```
 
 This saves the vector store to `./data/vector-store.json` by default.
 
-### 3. Start the MCP server
+### 4. Start the MCP server
 
 ```bash
-OPENAI_API_KEY=sk-... npm start
+npm start
 ```
 
 ## Tools
@@ -45,6 +53,8 @@ Performs vector similarity search over the Lawmaker user manual.
 **Output:** Formatted Markdown with the most relevant documentation sections, each including the page URL, title, section heading, text content, and similarity score.
 
 ## Configuration
+
+All environment variables can be set in a `.env` file (see `.env.example` for a template). The application will automatically load these at startup.
 
 | Environment variable  | Default                                   | Description                                        |
 |-----------------------|-------------------------------------------|----------------------------------------------------|
@@ -73,10 +83,12 @@ Options:
 Example — rebuild with a custom output path:
 
 ```bash
-OPENAI_API_KEY=sk-... node build/cli/build-index.js \
+npm run build-index -- \
   --output /data/lawmaker-vectors.json \
   --max-pages 200
 ```
+
+(Ensure `OPENAI_API_KEY` is set in your `.env` file.)
 
 ## Usage with Claude Desktop
 
@@ -89,13 +101,14 @@ Add to your Claude Desktop configuration (`claude_desktop_config.json`):
       "command": "node",
       "args": ["/path/to/lawmaker-help-mcp/build/index.js"],
       "env": {
-        "OPENAI_API_KEY": "sk-...",
         "VECTOR_STORE_PATH": "/path/to/lawmaker-help-mcp/data/vector-store.json"
       }
     }
   }
 }
 ```
+
+> **Note:** `OPENAI_API_KEY` should be set in your `.env` file in the lawmaker-help-mcp directory, or as a system environment variable.
 
 ## Development
 

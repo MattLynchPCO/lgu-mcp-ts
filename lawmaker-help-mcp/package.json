@@ -26,6 +26,7 @@
   "dependencies": {
     "@hono/node-server": "^1.19.9",
     "@modelcontextprotocol/sdk": "^1.0.4",
+    "dotenv": "^16.4.5",
     "hono": "^4.11.7",
     "openai": "^6.25.0"
   },

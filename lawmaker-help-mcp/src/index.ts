@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
 /**
+ * Load environment variables from .env file
+ */
+import "dotenv/config";
+
+/**
  * MCP Server for Lawmaker Help documentation (help.lawmaker.legislation.gov.uk)
  *
  * Provides a vector search tool over the Lawmaker user manual.
@@ -13,8 +18,10 @@
  *
  * Prerequisites:
  *   1. Run `npm run build-index` to build the vector store from the help site.
- *   2. Set OPENAI_API_KEY for embedding generation (both build-index and runtime).
+ *   2. Set OPENAI_API_KEY in .env file for embedding generation (both build-index and runtime).
  *   3. Optionally set VECTOR_STORE_PATH to specify a custom store location.
+ *
+ * See .env.example for configuration options.
  */
 
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";

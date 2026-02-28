@@ -58,7 +58,7 @@ OPENAI_API_KEY=<your-key> npm run build-index
 Then start the server on port 3001:
 
 ```bash
-MCP_TRANSPORT=http PORT=3001 OPENAI_API_KEY=<your-key> npm start
+MCP_TRANSPORT=http PORT=3001 npm start
 ```
 
 The server starts at `http://localhost:3001`. You should see:
@@ -77,11 +77,7 @@ Leave this terminal running.
 
 Open a **third terminal** in the **repository root** and run:
 
-```bash
-OPENAI_API_KEY=<your-key> npm run chat
-```
-
-Alternatively, create a `.env` file in the repository root:
+Create a `.env` file in the repository root:
 
 ```
 OPENAI_API_KEY=sk-...

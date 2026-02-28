@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
 /**
+ * Load environment variables from .env file
+ */
+import "dotenv/config";
+
+/**
  * CLI: build-index
  *
  * Crawls help.lawmaker.legislation.gov.uk, generates embeddings for each
@@ -57,6 +62,21 @@ async function main(): Promise<void> {
   console.error(`Delay:       ${delayMs}ms`);
   console.error("");
 
+  // Validate OpenAI API key before crawling
+  console.error("Validating configuration...");
+  let embeddingsClient: EmbeddingsClient;
+  try {
+    embeddingsClient = new EmbeddingsClient({ model });
+    console.error("  ✓ OpenAI API key configured");
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`❌ Error: ${error.message}`);
+      console.error("\nPlease set OPENAI_API_KEY in your .env file or environment variables.");
+    }
+    process.exit(1);
+  }
+  console.error("");
+
   // Step 1: Crawl the help site
   console.error("Step 1: Crawling help site...");
   const pageChunks = await scrapeHelpSite({ baseUrl, maxPages, delayMs });
@@ -69,15 +89,6 @@ async function main(): Promise<void> {
 
   // Step 2: Generate embeddings
   console.error("\nStep 2: Generating embeddings...");
-  let embeddingsClient: EmbeddingsClient;
-  try {
-    embeddingsClient = new EmbeddingsClient({ model });
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error(`Error initialising embeddings client: ${error.message}`);
-    }
-    process.exit(1);
-  }
 
   const texts = pageChunks.map((c) => `${c.title}\n${c.heading}\n${c.text}`.slice(0, 8000));
   let embeddings: number[][];

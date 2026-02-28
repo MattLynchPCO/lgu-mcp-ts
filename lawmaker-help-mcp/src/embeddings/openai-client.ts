@@ -2,9 +2,9 @@
  * OpenAI embeddings client.
  *
  * Wraps the OpenAI API to generate dense vector embeddings for text chunks.
- * Configured via environment variables:
- *   OPENAI_API_KEY  — required
- *   OPENAI_BASE_URL — optional, defaults to the OpenAI API
+ * Configured via environment variables (set in .env file or system environment):
+ *   OPENAI_API_KEY   — required
+ *   OPENAI_BASE_URL  — optional, defaults to the OpenAI API
  *   EMBEDDINGS_MODEL — optional, defaults to text-embedding-3-small
  */
 
