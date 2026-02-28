@@ -1,0 +1,39 @@
+{
+  "name": "lawmaker-help-mcp",
+  "version": "0.1.0",
+  "description": "MCP server providing vector search of the Lawmaker user manual (help.lawmaker.legislation.gov.uk)",
+  "type": "module",
+  "bin": {
+    "lawmaker-help-mcp": "./build/index.js",
+    "lawmaker-help-build-index": "./build/cli/build-index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node build/index.js",
+    "inspector": "npx @modelcontextprotocol/inspector node build/index.js",
+    "build-index": "node build/cli/build-index.js",
+    "test": "npm run build && node --test build/test/**/*.test.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "lawmaker",
+    "legislation",
+    "vector-search"
+  ],
+  "author": "The National Archives",
+  "license": "OGL-UK-3.0",
+  "dependencies": {
+    "@hono/node-server": "^1.19.9",
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "hono": "^4.11.7",
+    "openai": "^6.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
