@@ -27,7 +27,7 @@ function parseDocument(root: Element): Document {
   // If the root IS a structural element (fragment), parse it directly
   const structural = parseDivisionOrProvision(root);
   if (structural) {
-    return { type: 'document', prelims: [], body: [structural], schedules: [] };
+    return { type: 'document', prelims: [], body: structural, schedules: [] };
   }
 
   // Standalone P2 fragment — treat as a provision
@@ -99,7 +99,7 @@ function collectDocument(el: Element, doc: Document): void {
     // Structural elements
     const structural = parseDivisionOrProvision(child);
     if (structural) {
-      doc.body.push(structural);
+      doc.body.push(...structural);
       continue;
     }
 
@@ -138,17 +138,17 @@ const DIVISION_TAGS: Record<string, DivisionName> = {
   EUSubsection: 'subHeading',
 };
 
-function parseDivisionOrProvision(el: Element): Division | Provision | null {
+function parseDivisionOrProvision(el: Element): (Division | Provision)[] | null {
   const name = el.localName;
 
   if (name in DIVISION_TAGS) {
-    return parseDivision(el, DIVISION_TAGS[name]);
+    return [parseDivision(el, DIVISION_TAGS[name])];
   }
   if (name === 'P1group') {
     return parseP1group(el);
   }
   if (name === 'P1') {
-    return parseProvision(el);
+    return [parseProvision(el)];
   }
   return null;
 }
@@ -178,7 +178,7 @@ function collectDivisionChildren(el: Element, out: (Division | Provision)[]): vo
   // Try structural parse first
   const structural = parseDivisionOrProvision(el);
   if (structural) {
-    out.push(structural);
+    out.push(...structural);
     return;
   }
 
@@ -197,39 +197,56 @@ function collectDivisionChildren(el: Element, out: (Division | Provision)[]): vo
   }
 }
 
-// --- P1group → Provision with title ---
+// --- P1group → Provision(s) with title on first ---
 
-function parseP1group(el: Element): Provision {
+function parseP1group(el: Element): Provision[] {
   let groupTitle = '';
-  let p1El: Element | null = null;
+  const provisions: Provision[] = [];
 
   for (const child of childElements(el)) {
     if (child.localName === 'Title') {
       groupTitle = textContent(child);
     } else if (child.localName === 'P1') {
-      p1El = child;
+      const title = provisions.length === 0 ? (groupTitle || undefined) : undefined;
+      provisions.push(parseProvision(child, title));
+    } else if (child.localName === 'P') {
+      const title = provisions.length === 0 ? (groupTitle || undefined) : undefined;
+      provisions.push(parseUnnumberedProvision(child, title));
     }
   }
 
-  return parseProvision(p1El ?? el, groupTitle || undefined);
+  if (provisions.length === 0) {
+    return [parseProvision(el, groupTitle || undefined)];
+  }
+
+  return provisions;
+}
+
+// --- Unnumbered provision (P) ---
+
+/** Parse a <P> element as a numberless Provision. */
+function parseUnnumberedProvision(el: Element, title?: string): Provision {
+  // <P> has inline content directly (no P1para wrapper).
+  return buildLeafOrBranch(
+    childElements(el),
+    (child) => parseSubOrParagraph(child),
+    (blocks) => ({ type: 'subProvision', number: '', variant: 'leaf', content: blocks }) as SubProvision,
+    (variant) => {
+      if (variant.kind === 'leaf') {
+        return { type: 'provision', number: '', title, variant: 'leaf', content: variant.blocks } as Provision;
+      }
+      return { type: 'provision', number: '', title, variant: 'branch', intro: variant.intro, children: variant.children, wrapUp: variant.wrapUp } as Provision;
+    },
+  );
 }
 
 // --- Provision (P1) ---
 
 function parseProvision(el: Element, title?: string): Provision {
-  let number = '';
-  const paraEls: Element[] = [];
-
-  for (const child of childElements(el)) {
-    if (child.localName === 'Pnumber') {
-      number = textContent(child);
-    } else if (child.localName === 'P1para') {
-      paraEls.push(child);
-    }
-  }
+  const number = extractPnumber(el, 1);
 
   return buildLeafOrBranch(
-    paraEls,
+    flattenProvisionContent(el, 'P1para'),
     (child) => parseSubOrParagraph(child),
     (blocks) => ({ type: 'subProvision', number: '', variant: 'leaf', content: blocks }) as SubProvision,
     (variant) => {
@@ -243,24 +260,15 @@ function parseProvision(el: Element, title?: string): Provision {
 
 /** Parse a standalone P2+ fragment as a Provision (for fragment root elements). */
 function parseProvisionAtAnyLevel(el: Element, level: number): Provision {
-  let number = '';
+  const number = extractPnumber(el, level);
   const paraTag = `P${level}para`;
-  const paraEls: Element[] = [];
-
-  for (const child of childElements(el)) {
-    if (child.localName === 'Pnumber') {
-      number = textContent(child);
-    } else if (child.localName === paraTag) {
-      paraEls.push(child);
-    }
-  }
 
   const childParser = level <= 2
     ? (child: Element) => parseSubOrParagraph(child)
     : (child: Element) => parseParagraphElement(child);
 
   return buildLeafOrBranch(
-    paraEls,
+    flattenProvisionContent(el, paraTag),
     childParser,
     (blocks) => ({ type: 'subProvision', number: '', variant: 'leaf', content: blocks }) as SubProvision,
     (variant) => {
@@ -275,19 +283,10 @@ function parseProvisionAtAnyLevel(el: Element, level: number): Provision {
 // --- SubProvision (P2) ---
 
 function parseSubProvision(el: Element): SubProvision {
-  let number = '';
-  const paraEls: Element[] = [];
-
-  for (const child of childElements(el)) {
-    if (child.localName === 'Pnumber') {
-      number = textContent(child);
-    } else if (child.localName === 'P2para') {
-      paraEls.push(child);
-    }
-  }
+  const number = extractPnumber(el, 2);
 
   return buildLeafOrBranch(
-    paraEls,
+    flattenProvisionContent(el, 'P2para'),
     (child) => parseParagraphElement(child),
     (blocks) => ({ type: 'paragraph', number: '', variant: 'leaf', content: blocks }) as Paragraph,
     (variant) => {
@@ -302,23 +301,14 @@ function parseSubProvision(el: Element): SubProvision {
 // --- Paragraph (P3, P4, P5, ...) ---
 
 function parseParagraphAtLevel(el: Element, level: number): Paragraph {
-  let number = '';
+  const number = extractPnumber(el, level);
   const paraTag = `P${level}para`;
-  const paraEls: Element[] = [];
-
-  for (const child of childElements(el)) {
-    if (child.localName === 'Pnumber') {
-      number = textContent(child);
-    } else if (child.localName === paraTag) {
-      paraEls.push(child);
-    }
-  }
 
   const childLevel = level + 1;
   const childTag = `P${childLevel}`;
 
   return buildLeafOrBranch(
-    paraEls,
+    flattenProvisionContent(el, paraTag),
     (child) => child.localName === childTag ? parseParagraphAtLevel(child, childLevel) : null,
     (blocks) => ({ type: 'paragraph', number: '', variant: 'leaf', content: blocks }) as Paragraph,
     (variant) => {
@@ -357,7 +347,7 @@ type LeafOrBranch<C> =
   | { kind: 'branch'; intro: Block[]; children: C[]; wrapUp: Block[] };
 
 function buildLeafOrBranch<C, R>(
-  paraEls: Element[],
+  contentEls: Iterable<Element>,
   tryParseChild: (el: Element) => C | null,
   wrapBlocks: (blocks: Block[]) => C,
   build: (variant: LeafOrBranch<C>) => R,
@@ -365,14 +355,12 @@ function buildLeafOrBranch<C, R>(
   const allBlocks: Block[] = [];
   const childEntries: { index: number; child: C }[] = [];
 
-  for (const para of paraEls) {
-    for (const child of expandGroups(childElements(para))) {
-      const parsed = tryParseChild(child);
-      if (parsed !== null) {
-        childEntries.push({ index: allBlocks.length, child: parsed });
-      } else {
-        allBlocks.push(...parseBlockElement(child));
-      }
+  for (const child of expandGroups(contentEls)) {
+    const parsed = tryParseChild(child);
+    if (parsed !== null) {
+      childEntries.push({ index: allBlocks.length, child: parsed });
+    } else {
+      allBlocks.push(...parseBlockElement(child));
     }
   }
 
@@ -447,7 +435,7 @@ function parseScheduleBody(el: Element, body: (Division | Provision | Block)[]):
   for (const child of childElements(el)) {
     const structural = parseDivisionOrProvision(child);
     if (structural) {
-      body.push(structural);
+      body.push(...structural);
       continue;
     }
     const blocks = parseBlockElement(child);
@@ -635,7 +623,7 @@ function parseBlockAmendment(el: Element): BlockAmendment {
     // Try structural parse first
     const structural = parseDivisionOrProvision(child);
     if (structural) {
-      children.push(structural);
+      children.push(...structural);
       continue;
     }
     // Fall back to block parse
@@ -731,6 +719,32 @@ function textContent(element: Element): string {
   return (element.textContent || '').trim();
 }
 
+/**
+ * Format a Pnumber element's text with punctuation.
+ * Uses PuncBefore/PuncAfter attributes if present; otherwise applies defaults:
+ *   P1: "1."   (period after)
+ *   P2+: "(1)" (parentheses around)
+ */
+function formatPnumber(el: Element, level: number): string {
+  const text = textContent(el);
+  const hasPunc = el.hasAttribute('PuncBefore') || el.hasAttribute('PuncAfter');
+  if (hasPunc) {
+    const before = el.getAttribute('PuncBefore') ?? '';
+    const after = el.getAttribute('PuncAfter') ?? '';
+    return `${before}${text}${after}`;
+  }
+  if (level === 1) return `${text}.`;
+  return `(${text})`;
+}
+
+/** Find the Pnumber child of an element and format it with punctuation. */
+function extractPnumber(el: Element, level: number): string {
+  for (const child of childElements(el)) {
+    if (child.localName === 'Pnumber') return formatPnumber(child, level);
+  }
+  return '';
+}
+
 /** Extract all text from an element, collapsing whitespace. */
 function extractText(element: Element): string {
   return (element.textContent || '').replace(/\s+/g, ' ').trim();
@@ -740,6 +754,21 @@ function* childElements(element: Element): Iterable<Element> {
   for (let i = 0; i < element.childNodes.length; i++) {
     const child = element.childNodes[i];
     if (child.nodeType === 1) yield child as Element;
+  }
+}
+
+/**
+ * Flatten a provision element's children into a single content stream.
+ * Para elements (e.g. P1para) are expanded to their children; other non-metadata
+ * elements are yielded directly. This maintains document order.
+ */
+function* flattenProvisionContent(el: Element, paraTag: string): Iterable<Element> {
+  for (const child of childElements(el)) {
+    if (child.localName === paraTag) {
+      yield* childElements(child);
+    } else if (child.localName !== 'Pnumber' && child.localName !== 'CommentaryRef') {
+      yield child;
+    }
   }
 }
 
